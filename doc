@@ -1,0 +1,73 @@
+
+#######################################################################
+what is ray casting?
+::
+it is a way to transform  a limited form of data (create a 3d view using data)
+by tarcing rays from the view point into the view volume (rays of light hit the walls
+get turn to wall if collide happen or empty space in case of none)
+and it is not possible to move in z axis using ray-casting because it put a geaomastic constriants
+{
+    1. Walls are always at 90° angle with the floor.
+    2. Walls are made of cubes that have the same size.
+    3. Floor is always flat.
+} 
+#######################################################################
+BUILT THE WORLD
+::
+the size of cube wil be  64x64x64 units:
+    it was chosing becuase I chose to do sheft opertations
+    and for that it need to be devide by 2this faster than noral arithmetic;
+    -The larger the size of the cube, the blockier the world will look like
+    but smaller cube will make the rendering slower
+chose ow ou move in axis
+
+now we need:
+    palyer hight (how high the player view the wold) = 64
+    player FOV (field of view) = 60
+    player position:
+    {
+        take x coordinate 
+        y coordinate
+        the angle the player facing:N, S, W, E
+    }
+    Relationship between player and projection plane (???)
+     https://permadi.com/tutorial/raycast/images/figure8.gif
+    the window size: 640 wide and 200 high
+now we calculate:
+    size of window: 640*200;
+    middle = 160, 100;
+    angel between colum and how to loop = 60/640 = 1 colum
+    distance from player to the project planer 160 /30 = 277 
+
+#######################################################################
+int		draw3dline(double ray_angle, t_ray *ray, t_adata *a, int col_id) 2
+{
+	ft_prepare_3d_line(ray_angle, ray, a, col_id);
+	line3d(ray, a, ray->text_wallhit);
+	return (0);
+}
+int		ft_prepare_3d_line(double ray_angle, t_ray *ray, t_adata *a, int col_id)3
+{
+	double		line_height;
+	double		nofish_dist;
+
+	nofish_dist = (ray->distance / a->map.tile_size) *
+	cos(ray_angle - a->joe.rotangle);
+	line_height = a->ray.distprojplane / nofish_dist;
+	a->line_3d.start_x = col_id;
+	a->line_3d.start_y = (a->win.win_h / 2) - (line_height / 2);
+	if (a->line_3d.start_y < 0)
+		a->line_3d.start_y = 0;
+	a->line_3d.end_x = col_id;
+	a->line_3d.end_y = (a->win.win_h / 2) + (line_height / 2);
+	if (a->line_3d.end_y >= a->win.win_h)
+		a->line_3d.end_y = a->win.win_h - 1.0;
+	a->line_3d.deltax = a->line_3d.end_x - a->line_3d.start_x;
+	a->line_3d.deltay = a->line_3d.end_y - a->line_3d.start_y;
+	a->line_3d.pixels = sqrt(pow(a->line_3d.deltax, 2) +
+	pow(a->line_3d.deltay, 2));
+	a->line_3d.deltax /= a->line_3d.pixels;
+	a->line_3d.deltay /= a->line_3d.pixels;
+	find_text_wallhit(ray_angle, ray, a);
+	return (0);
+}
